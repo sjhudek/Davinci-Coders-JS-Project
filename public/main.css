@@ -1,38 +1,23 @@
-* {
-  box-sizing: border-box;
+.todo-container {
+  width: 500px;
+  margin: 5px auto;
+  margin-top: 20px;
 }
 
-body {
-  font-family: "Gotham A", Helvetica, Arial, sans-serif;
-  font-weight: normal;
-  margin: 0;
-  overflow-x: hidden;
-  background-color: #dfdfe4;
+.add-todo-container {
+  margin-bottom: 10px;
 }
 
-main {
-  overflow: hidden;
+.add-todo-container .col-md-10 {
+  padding-left: 0;
 }
 
-h4 {
-  position: absolute;
-  left: 7%;
-  top: 0;
-  font-weight: normal;
-  font-size: 34px;
+.add-todo-container .col-md-2 {
+  padding-right: 0;
+  text-align: right;
 }
 
-img {
-  width: 100%;
+.todo-container h1 {
+  font-family: 'Over the Rainbow', cursive;
+  font-size: 25px;
 }
-
-.blur {
-  -webkit-filter: blur(3px);
-  filter: blur(3px);
-}
-
-.gridItem {
-  position: absolute;
-}
-
-/*# sourceMappingURL=main.css.map*/
