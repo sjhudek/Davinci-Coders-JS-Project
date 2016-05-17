@@ -7,6 +7,7 @@ require('bootstrap');
 import _ from 'underscore';
 import Handlebars from 'handlebars';
 import lscache from 'lscache';
+import rawTemplate from '/templates/todoItem.html';
 // var $ = require('jquery'); ES5
 
 
@@ -46,20 +47,22 @@ var app = {
     app.bindEvents();
   }, 
   compileTemplates: function(){
-    template = $('[type="text/x-template"]');
-    template = Handlebars.compile(template.first().html()); // grabbing the first content in the HTML template
+    template = Handlebars.compile(rawTemplate); // grabbing the first content in the HTML template
   },
   unbindEvents(){ // removes handlers
     $('.list-group-item').off();
     $('.add-todo-container button').off();
     $('.input[type="checkbox"]').off();
     $('.list-group-item button').off();
+    $('.title-edit input').off();
   },
   bindEvents: function(){
     app.bindHoverEvents();
     app.bindCheckboxEvents();
     app.bindAddTodoEvents();
     app.bindRemoveTodoEvents();
+    app.bindEditTodoEvents();
+
   },
   bindHoverEvents: function(){
     var $items = $('.list-group-item'); // assign to $items so we don't call twice
@@ -83,12 +86,17 @@ var app = {
     });
   },
   bindAddTodoEvents: function(){
-    $('.add-todo-container button').on('click', function(){
-      var newTodoTitle = $('.add-todo-container input').val();
+    var $container = $('.add-todo-container');
+    $container.find('button').on('click', function() {
+      var newTodoTitle = $container.find('input').val();
       if (_.isString(newTodoTitle) && newTodoTitle.length > 2) {
-        var newTodoObject = {title: newTodoTitle, completed: false};
+        var newTodoObject = {
+            id: todos.length,
+            title: newTodoTitle,
+            completed: false
+          };
         todos.push(newTodoObject);
-        $('.add-todo-container input').val('');
+        $container.find('input').val("");
         app.render();
       }
     });
@@ -99,6 +107,31 @@ var app = {
       var index = $(this).parent().parent().index();
       todos.splice(index, 1);
       app.render();
+    });
+  },
+  bindEditTodoEvents: function(){
+    $('.title').on('click', function(){
+      var $parent = $(this).parent();
+      $parent.find('.title').addClass('hidden');
+      $parent.find('.title-edit').removeClass('hidden');
+    });
+    $('.title-edit input').on('keypress', function(event){
+      var key = event.which;
+      // If they enter the enter key
+      if (key === 13){
+        var newTitle = $(this).val();
+        var editId = $(this).attr('data-id');
+        editId = parseInt(editId, 10);
+        // update the title in our model
+        var editTodo = _.filter(todos, function(todo){
+          if (todo.id === editId){
+            return true;
+          }
+          return false;
+        });
+        editTodo[0].title = newTitle;
+        app.render();
+      }
     });
   }
 }; // end of app
