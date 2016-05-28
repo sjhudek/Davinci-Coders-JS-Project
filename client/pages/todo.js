@@ -12,6 +12,13 @@ import rawTemplate from 'templates/todoItem.html';
 
 
 // Data Model this is a database!!
+var todoSchema = function(todo){
+  return _.defaults(todo, {
+    id: 0,
+    title: "",
+    completed: false
+  });
+}
 var savedData = lscache.get('todos');
 var todos;
 if (savedData === null) {
@@ -90,11 +97,11 @@ var app = {
     $container.find('button').on('click', function() {
       var newTodoTitle = $container.find('input').val();
       if (_.isString(newTodoTitle) && newTodoTitle.length > 2) {
-        var newTodoObject = {
+        var newTodoObject = todoSchema({
             id: todos.length,
             title: newTodoTitle,
             completed: false
-          };
+          });
         todos.push(newTodoObject);
         $container.find('input').val('');
         app.render();
