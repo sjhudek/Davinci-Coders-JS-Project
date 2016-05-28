@@ -7,7 +7,7 @@ require('bootstrap');
 import _ from 'underscore';
 import Handlebars from 'handlebars';
 import lscache from 'lscache';
-import rawTemplate from '/templates/todoItem.html';
+import rawTemplate from 'templates/todoItem.html';
 // var $ = require('jquery'); ES5
 
 
@@ -96,7 +96,7 @@ var app = {
             completed: false
           };
         todos.push(newTodoObject);
-        $container.find('input').val("");
+        $container.find('input').val('');
         app.render();
       }
     });

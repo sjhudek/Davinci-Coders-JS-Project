@@ -74,4 +74,9 @@ h1 {
   transform: translate3d(20px, 50px, 100px);
 }
 
+video {
+  height: 240px;
+  width: 320px;
+}
+
 /*# sourceMappingURL=main.css.map*/
