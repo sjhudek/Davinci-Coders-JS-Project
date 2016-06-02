@@ -15,10 +15,10 @@ import rawTemplate from 'templates/todoItem.html';
 var todoSchema = function(todo){
   return _.defaults(todo, {
     id: 0,
-    title: "",
+    title: '',
     completed: false
   });
-}
+};
 var savedData = lscache.get('todos');
 var todos;
 if (savedData === null) {

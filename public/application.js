@@ -89,14 +89,6 @@
 	      _pagesFunnySquares2['default'].init();
 	      break;
 	  }
-	
-	  // Fancy Console Message for Developers
-	
-	  console.log("================================");
-	  console.log("================================");
-	  console.log("=====I am looking for a job=====");
-	  console.log("=============Call me============");
-	  console.log("================================");
 	});
 
 /***/ },
@@ -9993,7 +9985,7 @@
 	var todoSchema = function todoSchema(todo) {
 	  return _underscore2['default'].defaults(todo, {
 	    id: 0,
-	    title: "",
+	    title: '',
 	    completed: false
 	  });
 	};

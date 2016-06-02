@@ -26,13 +26,4 @@ $(function(){
   break;
   }
 
-
-  // Fancy Console Message for Developers
-
-  console.log("================================");
-  console.log("================================");
-  console.log("=====I am looking for a job=====");
-  console.log("=============Call me============");
-  console.log("================================");
-
 });
