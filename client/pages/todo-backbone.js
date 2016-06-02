@@ -26,18 +26,40 @@ var todoControllerView;
 
 TodoModel = Backbone.Model.extend({
   defaults: {
-
+    todos: []
+  },
+  todoSchema: {
+    id: 0,
+    title: "",
+    completed: false
   },
   fetch: function(){
     // gets the data
+    var data = lscache.get('todos');
+    data = this.applySchema(data);
+    this.set('todos', data);
   },
   save: function(){
     // saves the data
+    var data = this.get('todos');
+    data = this.applySchema(data);
+    lscache.set('todos', data);
+  },
+  applySchema: function(todos){
+    var data = todos;
+    var schema = this.todoSchema;
+    data = (_.isArray(todos)) ? data : [];
+    data = data.map(function(todo, index){
+      todo.id = index;
+      return _.defaults(todo, schema);
+    });
+
+    return data;
   }
 });
 
 // todoModel = blueprint   TodoModel = house
-var todoModel = new TodoModel(); // capitalize after "new"
+todoModel = new TodoModel(); // capitalize after "new"
 
 // ***** View *****
 
@@ -55,6 +77,6 @@ TodoControllerView = Backbone.View.extend({
   }
 });
 
-var todoControllerView = new TodoControllerView(); // it calls ViewClass.initialize
+todoControllerView = new TodoControllerView(); // it calls ViewClass.initialize
 
 module.exports = todoControllerView;
