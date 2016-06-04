@@ -9978,7 +9978,6 @@
 	var _templatesTodoItemHtml2 = _interopRequireDefault(_templatesTodoItemHtml);
 	
 	// Backbone ToDo App
-	
 	var $ = __webpack_require__(1);
 	
 	// legacy loading for bootstrap
@@ -9988,41 +9987,122 @@
 	var TodoModel;
 	var TodoControllerView;
 	var TodoView;
+	var TodoItemView;
 	
 	var todoModel;
 	var todoControllerView;
 	
 	// ***** Model *****
-	
 	TodoModel = _backbone2['default'].Model.extend({
-	  defaults: {},
+	  defaults: {
+	    todos: []
+	  },
+	  todoSchema: {
+	    id: 0,
+	    title: '',
+	    completed: false
+	  },
 	  fetch: function fetch() {
 	    // gets the data
+	    var data = _lscache2['default'].get('todos');
+	    data = this.applySchema(data);
+	    this.set('todos', data);
 	  },
 	  save: function save() {
 	    // saves the data
+	    var data = this.get('todos');
+	    data = this.applySchema(data);
+	    _lscache2['default'].set('todos', data);
+	  },
+	  applySchema: function applySchema(todos) {
+	    var data = todos;
+	    var schema = this.todoSchema;
+	    data = _underscore2['default'].isArray(todos) ? data : [];
+	    data = data.map(function (todo, index) {
+	      todo.id = index;
+	      return _underscore2['default'].defaults(todo, schema);
+	    });
+	
+	    return data;
+	  },
+	  addItem: function addItem(newTitle) {
+	    var newTodo = { title: newTitle };
+	    var todos = this.get('todos');
+	    todos.push(newTodo);
+	    this.set('todos', todos);
+	    this.save;
+	  },
+	  removeItem: function removeItem(id) {
+	    // finally remove the damn thing
+	    var todos = this.get('todos');
+	    todos.splice(id, 1);
+	    this.save();
 	  }
 	});
 	
 	// todoModel = blueprint   TodoModel = house
-	var todoModel = new TodoModel(); // capitalize after "new"
+	todoModel = new TodoModel(); // capitalize after "new"
 	
 	// ***** View *****
 	
 	TodoControllerView = _backbone2['default'].View.extend({
-	  el: 'body',
+	  el: '.todo-container',
 	  model: todoModel,
 	  events: {
-	    'eventName .some-class': 'someFunction',
-	    'click .close': 'closeView'
+	    // 'eventName .some-class': 'someFunction',
+	    // 'click .close': 'closeView'
+	    'click .btn-add': 'addTodoItem'
 	  },
-	  initialize: function initialize() {},
+	  initialize: function initialize() {
+	    this.model.fetch();
+	  },
 	  render: function render() {
-	    alert('backbone!');
+	    // render the todo items
+	    var todos = this.model.get('todos');
+	    var $ul = this.$el.find('ul');
+	    $ul.html('');
+	    todos.map(function (todo) {
+	      var view = new TodoItemView(todo);
+	      $ul.append(view.$el);
+	    });
+	  },
+	  addTodoItem: function addTodoItem() {
+	    var $input = this.$el.find('.input-name');
+	    var newTitle = $input.val();
+	    if (newTitle === '') {
+	      return;
+	    }
+	    this.model.addItem(newTitle);
+	    $input.val('');
+	    this.render();
+	  },
+	  removeItem: function removeItem(id) {
+	    this.model.removeItem(id);
 	  }
 	});
 	
-	var todoControllerView = new TodoControllerView(); // it calls ViewClass.initialize
+	TodoItemView = _backbone2['default'].View.extend({
+	  tagname: 'li', // el = <li class="list-group-item"></li>
+	  className: 'list-group-item row',
+	  events: {
+	    'click .close': 'removeItem'
+	  },
+	  template: _handlebars2['default'].compile(_templatesTodoItemHtml2['default']),
+	  initialize: function initialize(todo) {
+	    this.data = todo;
+	    this.render();
+	  },
+	  render: function render(todo) {
+	    this.$el.html(this.template(this.data));
+	  },
+	  removeItem: function removeItem() {
+	    // get the id of the current item
+	    debugger;
+	    todoControllerView.removeItem(this.data.id);
+	  }
+	});
+	
+	todoControllerView = new TodoControllerView(); // it calls ViewClass.initialize
 	
 	module.exports = todoControllerView;
 
@@ -18653,7 +18733,7 @@
 /* 40 */
 /***/ function(module, exports) {
 
-	module.exports = "<li class=\"list-group-item row {{#if completed}}disabled{{/if}}\"> <!-- disabled row -->\n  <div class=\"col-md-1\"> \n    <input type=\"checkbox\" {{#if completed}}checked{{/if}}>\n  </div>\n  <div class=\"col-md-10 title\">{{title}}</div>\n  <div class=\"col-md-10 title-edit hidden\">\n    <input type=\"text\" class=\"form-control\" value=\"{{title}}\" data-id=\"{{id}}\">\n  </div>\n  <div class=\"col-md-1\">\n    <button type=\"button\" class=\"close\" aria-label=\"Close\">\n      <span aria-hidden=\"true\">&times;</span>\n    </button>\n  </div>\n</li>";
+	module.exports = "<div class=\"col-md-1\"> \n  <input type=\"checkbox\">\n</div>\n<div class=\"col-md-10 title\">{{title}}</div>\n<div class=\"col-md-10 title-edit hidden\">\n  <input type=\"text\" class=\"form-control\" value=\"{{title}}\" data-id=\"{{id}}\">\n</div>\n<div class=\"col-md-1\">\n  <button type=\"button\" class=\"close\" aria-label=\"Close\">\n    <span aria-hidden=\"true\">&times;</span>\n  </button>\n</div>";
 
 /***/ },
 /* 41 */

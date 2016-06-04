@@ -8,29 +8,25 @@ import _ from 'underscore';
 import Backbone from 'backbone';
 import Handlebars from 'handlebars';
 import lscache from 'lscache';
-import rawTemplate from 'templates/todoItem.html';
-
-
+import todoItemTemplate from 'templates/todoItem.html';
 
 // Backbone ToDo App
-
 var TodoModel;
 var TodoControllerView;
 var TodoView;
+var TodoItemView;
 
 var todoModel;
 var todoControllerView;
 
-
 // ***** Model *****
-
 TodoModel = Backbone.Model.extend({
   defaults: {
     todos: []
   },
   todoSchema: {
     id: 0,
-    title: "",
+    title: '',
     completed: false
   },
   fetch: function(){
@@ -55,6 +51,19 @@ TodoModel = Backbone.Model.extend({
     });
 
     return data;
+  },
+  addItem: function(newTitle){
+    var newTodo = {title: newTitle};
+    var todos = this.get('todos');
+    todos.push(newTodo);
+    this.set('todos', todos);
+    this.save;
+  },
+  removeItem: function(id){
+    // finally remove the damn thing
+    var todos = this.get('todos');
+    todos.splice(id, 1);
+    this.save();
   }
 });
 
@@ -64,16 +73,57 @@ todoModel = new TodoModel(); // capitalize after "new"
 // ***** View *****
 
 TodoControllerView = Backbone.View.extend({
-  el: 'body',
+  el: '.todo-container',
   model: todoModel,
   events: {
-    'eventName .some-class': 'someFunction',
-    'click .close': 'closeView'
+    // 'eventName .some-class': 'someFunction',
+    // 'click .close': 'closeView'
+    'click .btn-add': 'addTodoItem'
   },
   initialize: function(){
+    this.model.fetch();
   },
   render: function(){
-    alert('backbone!');
+    // render the todo items
+    var todos = this.model.get('todos');
+    var $ul = this.$el.find('ul');
+    $ul.html('');
+    todos.map(function(todo){
+      var view = new TodoItemView(todo);
+      $ul.append(view.$el);
+    });
+  },
+  addTodoItem: function(){
+    var $input = this.$el.find('.input-name');
+    var newTitle = $input.val();
+    if (newTitle === '') { return; }
+    this.model.addItem(newTitle);
+    $input.val('');
+    this.render();
+  },
+  removeItem: function(id){
+    this.model.removeItem(id);
+  }
+});
+
+TodoItemView = Backbone.View.extend({
+  tagname: 'li', // el = <li class="list-group-item"></li>
+  className: 'list-group-item row',
+  events: {
+    'click .close': 'removeItem'
+  },
+  template: Handlebars.compile(todoItemTemplate),
+  initialize: function(todo){
+    this.data = todo;
+    this.render();
+  },
+  render: function(todo){
+    this.$el.html(this.template(this.data));
+  },
+  removeItem: function(){
+    // get the id of the current item
+    debugger;
+    todoControllerView.removeItem(this.data.id);
   }
 });
 
