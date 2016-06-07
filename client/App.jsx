@@ -4,6 +4,7 @@ import 'styles/main.scss';
 import todo from 'pages/todo-backbone';
 import project from 'pages/project';
 import funnySquares from 'pages/funnySquares';
+import formsBackbone from 'pages/formsBackbone';
 import header from 'components/header';
 
 $(function(){
@@ -24,6 +25,10 @@ $(function(){
     case '/pages/funnySquares.html':
         funnySquares.init();
   break;
+    case '/pages/formsBackbone.html':
+    var formspage = new formsBackbone();
+  break;
+  default: break;
   }
 
 });

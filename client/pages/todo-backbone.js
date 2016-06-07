@@ -13,7 +13,6 @@ import todoItemTemplate from 'templates/todoItem.html';
 // Backbone ToDo App
 var TodoModel;
 var TodoControllerView;
-var TodoView;
 var TodoItemView;
 
 var todoModel;
@@ -53,11 +52,12 @@ TodoModel = Backbone.Model.extend({
     return data;
   },
   addItem: function(newTitle){
+    debugger;
     var newTodo = {title: newTitle};
     var todos = this.get('todos');
     todos.push(newTodo);
     this.set('todos', todos);
-    this.save;
+    this.save();
   },
   removeItem: function(id){
     // finally remove the damn thing
@@ -103,6 +103,7 @@ TodoControllerView = Backbone.View.extend({
   },
   removeItem: function(id){
     this.model.removeItem(id);
+    this.render();
   }
 });
 
@@ -117,7 +118,7 @@ TodoItemView = Backbone.View.extend({
     this.data = todo;
     this.render();
   },
-  render: function(todo){
+  render: function(){
     this.$el.html(this.template(this.data));
   },
   removeItem: function(){

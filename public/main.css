@@ -74,6 +74,11 @@ h1 {
   transform: translate3d(20px, 50px, 100px);
 }
 
+.page-container {
+  width: 700px;
+  margin: auto;
+}
+
 video {
   height: 240px;
   width: 320px;
