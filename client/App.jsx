@@ -16,17 +16,17 @@ $(function(){
 
 // our first JS router
   switch (url) {
-    case '/pages/todo.html':
-        todo.render();
+  case '/pages/todo.html':
+    todo.render();
   break;
-    case '/pages/project.html':
-        // init the project javascript
+  case '/pages/project.html':
+    // init the project javascript
   break;
-    case '/pages/funnySquares.html':
-        funnySquares.init();
+  case '/pages/funnySquares.html':
+    funnySquares.init();
   break;
-    case '/pages/formsBackbone.html':
-    var formspage = new formsBackbone();
+  case '/pages/formsBackbone.html':
+    formsBackbone.render();
   break;
   default: break;
   }

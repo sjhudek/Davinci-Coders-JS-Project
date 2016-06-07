@@ -39,7 +39,6 @@ var controllerConfigObject = {
   },
   initialize: function(){
     this.model.fetch();
-    this.render();
   },
   render: function(){
     var listView = new ListView();
