@@ -42,11 +42,11 @@ var controllerConfigObject = {
   },
   render: function(){
     var listView = new ListView();
-    this.$el.find('.view-container').html(listView.$el);
+    this.$el.find('.view-container').html(listView.$el.html);
   },
   createNewAccount: function(){
     var createView = new CreateView();
-    this.$el.find('.view-container').html(createView.$el);
+    this.$el.find('.view-container').html(createView.$el.html);
   }
 };
 var AccountControllerView = Backbone.View.extend(controllerConfigObject);
@@ -87,6 +87,6 @@ var createViewConfig = {
 var CreateView = Backbone.View.extend(createViewConfig);
 
 
-accountControllerView = new AccountControllerView();
+var accountControllerView = new AccountControllerView();
 module.exports = accountControllerView;
 
