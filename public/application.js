@@ -70,7 +70,7 @@
 	
 	var _pagesFormsBackbone2 = _interopRequireDefault(_pagesFormsBackbone);
 	
-	var _componentsHeader = __webpack_require__(59);
+	var _componentsHeader = __webpack_require__(60);
 	
 	var _componentsHeader2 = _interopRequireDefault(_componentsHeader);
 	
@@ -93,7 +93,7 @@
 	      _pagesFunnySquares2['default'].init();
 	      break;
 	    case '/pages/formsBackbone.html':
-	      var formspage = new _pagesFormsBackbone2['default']();
+	      _pagesFormsBackbone2['default'].render();
 	      break;
 	    default:
 	      break;
@@ -10034,7 +10034,6 @@
 	    return data;
 	  },
 	  addItem: function addItem(newTitle) {
-	    debugger;
 	    var newTodo = { title: newTitle };
 	    var todos = this.get('todos');
 	    todos.push(newTodo);
@@ -10045,6 +10044,13 @@
 	    // finally remove the damn thing
 	    var todos = this.get('todos');
 	    todos.splice(id, 1);
+	    this.save();
+	  },
+	  itemCompleted: function itemCompleted(id, isCompleted) {
+	    var todos = this.get('todos');
+	    var item = _underscore2['default'].findWhere(todos, { id: id });
+	    item.completed = !isCompleted;
+	    this.set('todos', todos);
 	    this.save();
 	  }
 	});
@@ -10088,6 +10094,10 @@
 	  removeItem: function removeItem(id) {
 	    this.model.removeItem(id);
 	    this.render();
+	  },
+	  itemCompleted: function itemCompleted(id, isCompleted) {
+	    this.model.itemCompleted(id, isCompleted);
+	    this.render();
 	  }
 	});
 	
@@ -10095,7 +10105,8 @@
 	  tagname: 'li', // el = <li class="list-group-item"></li>
 	  className: 'list-group-item row',
 	  events: {
-	    'click .close': 'removeItem'
+	    'click .close': 'removeItem',
+	    'change .completed-checkbox': 'completedClicked'
 	  },
 	  template: _handlebars2['default'].compile(_templatesTodoItemHtml2['default']),
 	  initialize: function initialize(todo) {
@@ -10104,11 +10115,15 @@
 	  },
 	  render: function render() {
 	    this.$el.html(this.template(this.data));
+	    this.$el.toggleClass('disabled', this.data.completed);
 	  },
 	  removeItem: function removeItem() {
 	    // get the id of the current item
-	    debugger;
 	    todoControllerView.removeItem(this.data.id);
+	  },
+	  completedClicked: function completedClicked() {
+	    var isChecked = $(event.currentTarget).is(':checked');
+	    todoControllerView.itemCompleted(this.data.id, isChecked);
 	  }
 	});
 	
@@ -18743,7 +18758,7 @@
 /* 40 */
 /***/ function(module, exports) {
 
-	module.exports = "<div class=\"col-md-1\"> \n  <input type=\"checkbox\">\n</div>\n<div class=\"col-md-10 title\">{{title}}</div>\n<div class=\"col-md-10 title-edit hidden\">\n  <input type=\"text\" class=\"form-control\" value=\"{{title}}\" data-id=\"{{id}}\">\n</div>\n<div class=\"col-md-1\">\n  <button type=\"button\" class=\"close\" aria-label=\"Close\">\n    <span aria-hidden=\"true\">&times;</span>\n  </button>\n</div>";
+	module.exports = "<div class=\"col-md-1\"> \n  <input class=\"completed-checkbox\" type=\"checkbox\" {{#if completed}}checked{{/if}}>\n</div>\n<div class=\"col-md-10 title\">{{title}}</div>\n<div class=\"col-md-10 title-edit hidden\">\n  <input type=\"text\" class=\"form-control\" value=\"{{title}}\" data-id=\"{{id}}\">\n</div>\n<div class=\"col-md-1\">\n  <button type=\"button\" class=\"close\" aria-label=\"Close\">\n    <span aria-hidden=\"true\">&times;</span>\n  </button>\n</div>";
 
 /***/ },
 /* 41 */
@@ -21256,7 +21271,7 @@
 	
 	var _templatesAccountListHtml2 = _interopRequireDefault(_templatesAccountListHtml);
 	
-	var _templatesCreateAccountHtml = __webpack_require__(61);
+	var _templatesCreateAccountHtml = __webpack_require__(59);
 	
 	var _templatesCreateAccountHtml2 = _interopRequireDefault(_templatesCreateAccountHtml);
 	
@@ -21294,15 +21309,14 @@
 	  },
 	  initialize: function initialize() {
 	    this.model.fetch();
-	    this.render();
 	  },
 	  render: function render() {
 	    var listView = new ListView();
-	    this.$el.find('.view-container').html(listView.$el);
+	    this.$el.find('.view-container').html(listView.$el.html);
 	  },
 	  createNewAccount: function createNewAccount() {
 	    var createView = new CreateView();
-	    this.$el.find('.view-container').html(createView.$el);
+	    this.$el.find('.view-container').html(createView.$el.html);
 	  }
 	};
 	var AccountControllerView = _backbone2['default'].View.extend(controllerConfigObject);
@@ -21341,7 +21355,7 @@
 	};
 	var CreateView = _backbone2['default'].View.extend(createViewConfig);
 	
-	accountControllerView = new AccountControllerView();
+	var accountControllerView = new AccountControllerView();
 	module.exports = accountControllerView;
 
 /***/ },
@@ -21352,6 +21366,12 @@
 
 /***/ },
 /* 59 */
+/***/ function(module, exports) {
+
+	module.exports = "<form>\n  <label for=\"name-field\">Name</label>\n  <input class=\"form-control\" type=\"text\" id='name-field'></input>\n</form>\n<button class=\"btn btn-primary btn-done\">Done</button>";
+
+/***/ },
+/* 60 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -21362,7 +21382,7 @@
 	
 	var _jquery2 = _interopRequireDefault(_jquery);
 	
-	var _templatesNavbarHtml = __webpack_require__(60);
+	var _templatesNavbarHtml = __webpack_require__(61);
 	
 	var _templatesNavbarHtml2 = _interopRequireDefault(_templatesNavbarHtml);
 	
@@ -21378,16 +21398,10 @@
 	module.exports = app;
 
 /***/ },
-/* 60 */
-/***/ function(module, exports) {
-
-	module.exports = "<nav>\n  <a role=\"menuitem\" href=\"/pages/todo.html\">Todo Applications</a>\n  <a role=\"menuitem\" href=\"/pages/project.html\">My Project</a>\n  <a role=\"menuitem\" href=\"/pages/funnySquares.html\">Funny Squares</a>\n  <a role=\"menuitem\" href=\"/pages/formsBackbone.html\">Backbone Form</a>\n</nav>";
-
-/***/ },
 /* 61 */
 /***/ function(module, exports) {
 
-	module.exports = "<form>\n  <label for=\"name-field\">Name</label>\n  <input class=\"form-control\" type=\"text\" id='name-field'></input>\n</form>\n<button class=\"btn btn-primary btn-done\">Done</button>";
+	module.exports = "<nav>\n  <a role=\"menuitem\" href=\"/pages/todo.html\">Todo Applications</a>\n  <a role=\"menuitem\" href=\"/pages/project.html\">My Project</a>\n  <a role=\"menuitem\" href=\"/pages/funnySquares.html\">Funny Squares</a>\n  <a role=\"menuitem\" href=\"/pages/formsBackbone.html\">Backbone Form</a>\n</nav>";
 
 /***/ }
 /******/ ]);
