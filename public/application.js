@@ -10049,7 +10049,7 @@
 	  itemCompleted: function itemCompleted(id, isCompleted) {
 	    var todos = this.get('todos');
 	    var item = _underscore2['default'].findWhere(todos, { id: id });
-	    item.completed = !isCompleted;
+	    item.completed = isCompleted;
 	    this.set('todos', todos);
 	    this.save();
 	  }
@@ -10106,7 +10106,7 @@
 	  className: 'list-group-item row',
 	  events: {
 	    'click .close': 'removeItem',
-	    'change .completed-checkbox': 'completedClicked'
+	    'change input.completed-checkbox': 'completedClicked'
 	  },
 	  template: _handlebars2['default'].compile(_templatesTodoItemHtml2['default']),
 	  initialize: function initialize(todo) {
@@ -10122,7 +10122,7 @@
 	    todoControllerView.removeItem(this.data.id);
 	  },
 	  completedClicked: function completedClicked() {
-	    var isChecked = $(event.currentTarget).is(':checked');
+	    var isChecked = $(event.target).is(':checked');
 	    todoControllerView.itemCompleted(this.data.id, isChecked);
 	  }
 	});

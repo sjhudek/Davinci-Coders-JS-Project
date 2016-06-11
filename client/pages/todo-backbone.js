@@ -67,7 +67,7 @@ TodoModel = Backbone.Model.extend({
   itemCompleted: function(id, isCompleted){
     var todos = this.get('todos');
     var item = _.findWhere(todos, {id: id});
-    item.completed = !isCompleted;
+    item.completed = isCompleted;
     this.set('todos', todos);
     this.save();
   }
@@ -122,7 +122,7 @@ TodoItemView = Backbone.View.extend({
   className: 'list-group-item row',
   events: {
     'click .close': 'removeItem',
-    'change .completed-checkbox': 'completedClicked'
+    'change input.completed-checkbox': 'completedClicked'
   },
   template: Handlebars.compile(todoItemTemplate),
   initialize: function(todo){
@@ -138,7 +138,7 @@ TodoItemView = Backbone.View.extend({
     todoControllerView.removeItem(this.data.id);
   },
   completedClicked: function(){
-    var isChecked = $(event.currentTarget).is(':checked');
+    var isChecked = $(event.target).is(':checked');
     todoControllerView.itemCompleted(this.data.id, isChecked);
   }
 });
