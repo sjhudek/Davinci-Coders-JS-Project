@@ -10003,6 +10003,7 @@
 	  },
 	  initialize: function initialize() {
 	    this.model.fetch();
+	    this.model.on('change', this.render, this);
 	  },
 	  render: function render() {
 	    // render the todo items
@@ -18341,16 +18342,23 @@
 	    completed: false
 	  },
 	  fetch: function fetch() {
-	    // gets the data
-	    var data = _lscache2['default'].get('todos');
-	    data = this.applySchema(data);
-	    this.set('todos', data);
+	    var that = this;
+	    $.ajax({
+	      url: '/api',
+	      method: 'GET',
+	      complete: function complete(response) {
+	        var dataString = response.responseText;
+	        var data = JSON.parse(dataString);
+	        data = that.applySchema(data);
+	        that.set('todos', data);
+	      }
+	    });
 	  },
 	  save: function save() {
 	    // saves the data
-	    var data = this.get('todos');
-	    data = this.applySchema(data);
-	    _lscache2['default'].set('todos', data);
+	    // var data = this.get('todos');
+	    // data = this.applySchema(data);
+	    // lscache.set('todos', data);
 	  },
 	  applySchema: function applySchema(todos) {
 	    var data = todos;
