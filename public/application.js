@@ -58,19 +58,19 @@
 	
 	var _pagesTodoReactTodoController2 = _interopRequireDefault(_pagesTodoReactTodoController);
 	
-	var _pagesProject = __webpack_require__(200);
+	var _pagesProject = __webpack_require__(169);
 	
 	var _pagesProject2 = _interopRequireDefault(_pagesProject);
 	
-	var _pagesPhotoSearch = __webpack_require__(201);
+	var _pagesPhotoSearch = __webpack_require__(170);
 	
 	var _pagesPhotoSearch2 = _interopRequireDefault(_pagesPhotoSearch);
 	
-	var _pagesFunnySquares = __webpack_require__(203);
+	var _pagesFunnySquares = __webpack_require__(202);
 	
 	var _pagesFunnySquares2 = _interopRequireDefault(_pagesFunnySquares);
 	
-	var _pagesFormsBackbone = __webpack_require__(205);
+	var _pagesFormsBackbone = __webpack_require__(204);
 	
 	var _pagesFormsBackbone2 = _interopRequireDefault(_pagesFormsBackbone);
 	
@@ -9985,15 +9985,11 @@
 	
 	var _backbone2 = _interopRequireDefault(_backbone);
 	
-	var _handlebars = __webpack_require__(167);
-	
-	var _handlebars2 = _interopRequireDefault(_handlebars);
-	
-	var _pagesTodoReactTodoModel = __webpack_require__(197);
+	var _pagesTodoReactTodoModel = __webpack_require__(167);
 	
 	var _pagesTodoReactTodoModel2 = _interopRequireDefault(_pagesTodoReactTodoModel);
 	
-	var _pagesTodoReactTodoView = __webpack_require__(199);
+	var _pagesTodoReactTodoView = __webpack_require__(168);
 	
 	var _pagesTodoReactTodoView2 = _interopRequireDefault(_pagesTodoReactTodoView);
 	
@@ -10022,7 +10018,7 @@
 	    todos.forEach(function (todo) {
 	      var $li = $('<li class="list-group-item row"></li>');
 	      $ul.append($li);
-	      _reactDom2['default'].render(_react2['default'].createElement(_pagesTodoReactTodoView2['default'], { data: todo }), $li[0] // get original DOMnode from jQuery object
+	      _reactDom2['default'].render(_react2['default'].createElement(_pagesTodoReactTodoView2['default'], { data: todo, controller: controller }), $li[0] // get original DOMnode from jQuery object
 	      );
 	    });
 	  },
@@ -10034,14 +10030,6 @@
 	    }
 	    this.model.addItem(newTitle);
 	    $input.val('');
-	    this.render();
-	  },
-	  removeItem: function removeItem(id) {
-	    this.model.removeItem(id);
-	    this.render();
-	  },
-	  itemCompleted: function itemCompleted(id, isCompleted) {
-	    this.model.itemCompleted(id, isCompleted);
 	    this.render();
 	  },
 	  titleEdit: function titleEdit(newTitle, id) {
@@ -33142,15 +33130,296 @@
 /* 167 */
 /***/ function(module, exports, __webpack_require__) {
 
+	'use strict';
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+	
+	var _underscore = __webpack_require__(166);
+	
+	var _underscore2 = _interopRequireDefault(_underscore);
+	
+	var _backbone = __webpack_require__(165);
+	
+	var _backbone2 = _interopRequireDefault(_backbone);
+	
+	// ***** Model *****
+	var $ = __webpack_require__(1);
+	
+	var TodoModel = _backbone2['default'].Model.extend({
+	  defaults: {
+	    todos: []
+	  },
+	  todoSchema: {
+	    id: 0,
+	    title: '',
+	    completed: false,
+	    isEditing: false
+	  },
+	  fetch: function fetch() {
+	    var that = this;
+	    $.ajax({
+	      url: '/api',
+	      method: 'GET',
+	      complete: function complete(response) {
+	        var dataString = response.responseText;
+	        var data = JSON.parse(dataString);
+	        data = that.applySchema(data);
+	        that.set('todos', data);
+	      }
+	    });
+	  },
+	  save: function save() {
+	    var that = this;
+	    var todos = this.get('todos');
+	    $.ajax({
+	      url: '/api',
+	      method: 'POST',
+	      data: { todos: JSON.stringify(todos) },
+	      complete: function complete(response) {
+	        var dataString = response.responseText;
+	        var data = JSON.parse(dataString);
+	        data = that.applySchema(data);
+	        that.set('todos', data);
+	        that.trigger('change');
+	      }
+	    });
+	  },
+	  applySchema: function applySchema(todos) {
+	    var data = todos;
+	    var schema = this.todoSchema;
+	    data = _underscore2['default'].isArray(todos) ? data : [];
+	    data = data.map(function (todo, index) {
+	      todo.id = index;
+	      return _underscore2['default'].defaults(todo, schema);
+	    });
+	    return data;
+	  },
+	  addItem: function addItem(newTitle) {
+	    var newTodo = { title: newTitle };
+	    var todos = this.get('todos');
+	    todos.push(newTodo);
+	    this.set('todos', todos);
+	    this.save();
+	  },
+	  removeItem: function removeItem(id) {
+	    // finally remove the damn thing
+	    var todos = this.get('todos');
+	    todos.splice(id, 1);
+	    this.save();
+	  },
+	  itemCompleted: function itemCompleted(id, isCompleted) {
+	    var todos = this.get('todos');
+	    var item = _underscore2['default'].findWhere(todos, { id: id });
+	    item.completed = isCompleted;
+	    this.set('todos', todos);
+	    this.save();
+	  },
+	  editTitle: function editTitle(newTitle, id) {
+	    var todos = this.get('todos');
+	    var item = _underscore2['default'].findWhere(todos, { id: id });
+	    item.title = newTitle;
+	    item.isEditing = false;
+	    this.set('todos', todos);
+	    this.save();
+	  },
+	  startEditing: function startEditing(id) {
+	    var todos = this.get('todos');
+	    var item = _underscore2['default'].findWhere(todos, { id: id });
+	    item.isEditing = true;
+	    this.set('todos', todos);
+	    this.save();
+	  }
+	});
+	
+	// todoModel = blueprint   TodoModel = house
+	var todoModel = new TodoModel(); // capitalize after "new"
+	
+	module.exports = todoModel;
+
+/***/ },
+/* 168 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+	
+	var _jquery = __webpack_require__(1);
+	
+	var _jquery2 = _interopRequireDefault(_jquery);
+	
+	var _react = __webpack_require__(7);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	var TodoItem = _react2['default'].createClass({
+	  displayName: 'TodoItem',
+	
+	  propTypes: {
+	    data: _react.PropTypes.shape({
+	      id: _react.PropTypes.number,
+	      title: _react.PropTypes.string,
+	      completed: _react.PropTypes.bool
+	    }),
+	    controller: _react.PropTypes.object
+	  },
+	  render: function render() {
+	    var todo = this.props.data;
+	    var title = _react2['default'].createElement(
+	      'div',
+	      { className: 'col-md-10', onClick: this.titleClick },
+	      todo.title
+	    );
+	    if (todo.isEditing) {
+	      title = _react2['default'].createElement(
+	        'div',
+	        { className: 'col-md-10' },
+	        _react2['default'].createElement('input', { type: 'text', className: 'form-control', defaultValue: todo.title, onChange: function () {}, onKeyPress: this.editKeypress })
+	      );
+	    }
+	    return _react2['default'].createElement(
+	      'div',
+	      null,
+	      _react2['default'].createElement(
+	        'div',
+	        { className: 'col-sm-1' },
+	        _react2['default'].createElement('input', { className: 'completed-checkbox', type: 'checkbox', checked: todo.completed, onChange: this.handleComplete })
+	      ),
+	      title,
+	      _react2['default'].createElement(
+	        'div',
+	        { className: 'col-md-1' },
+	        _react2['default'].createElement(
+	          'button',
+	          { type: 'button', className: 'close', 'aria-label': 'Close', onClick: this.handleClose },
+	          _react2['default'].createElement(
+	            'span',
+	            { 'aria-hidden': 'true' },
+	            '×'
+	          )
+	        )
+	      )
+	    );
+	  },
+	  handleComplete: function handleComplete() {
+	    var id = this.props.data.id;
+	    var newValue = !this.props.data.completed;
+	    this.props.controller.model.itemCompleted(id, newValue);
+	  },
+	  handleClose: function handleClose() {
+	    var id = this.props.data.id;
+	    this.props.controller.model.removeItem(id);
+	  },
+	  titleClick: function titleClick() {
+	    var id = this.props.data.id;
+	    this.props.controller.model.startEditing(id);
+	  },
+	  editKeypress: function editKeypress(event) {
+	    if (event.which === 13) {
+	      var id = this.props.data.id;
+	      var newTitle = (0, _jquery2['default'])('li').eq(id).find('input[type="text"]').val();
+	      this.props.controller.model.editTitle(newTitle, id);
+	    }
+	  }
+	});
+	
+	module.exports = TodoItem;
+
+/***/ },
+/* 169 */
+/***/ function(module, exports) {
+
+	"use strict";
+	
+	var app = {};
+	module.exports = app;
+
+/***/ },
+/* 170 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+	
+	var _jquery = __webpack_require__(1);
+	
+	var _jquery2 = _interopRequireDefault(_jquery);
+	
+	var _handlebars = __webpack_require__(171);
+	
+	var _handlebars2 = _interopRequireDefault(_handlebars);
+	
+	var _templatesFlickrImageHtml = __webpack_require__(201);
+	
+	var _templatesFlickrImageHtml2 = _interopRequireDefault(_templatesFlickrImageHtml);
+	
+	var compiledTemplate = _handlebars2['default'].compile(_templatesFlickrImageHtml2['default']);
+	
+	var app = {
+	  init: function init() {
+	    app.render();
+	  },
+	  render: function render() {
+	    app.$input = (0, _jquery2['default'])('.search-container input');
+	    app.bindEvents();
+	  },
+	  bindEvents: function bindEvents() {
+	    app.$input.on('keypress', app.searchKeyPress);
+	  },
+	  searchKeyPress: function searchKeyPress(event) {
+	    if (event.which === 13) {
+	      app.doSearch();
+	    }
+	  },
+	  doSearch: function doSearch() {
+	    var phrase = app.$input.val();
+	    _jquery2['default'].ajax({
+	      url: 'https://api.flickr.com/services/rest',
+	      method: 'GET',
+	      data: {
+	        text: phrase,
+	        method: 'flickr.photos.search',
+	        api_key: '731717db25329eb6aa65703cb6b71970',
+	        format: 'json',
+	        per_page: 30
+	      },
+	      complete: function complete(response) {
+	        var text = response.responseText;
+	        text = text.slice(14, text.length - 1);
+	        var data = JSON.parse(text);
+	        app.renderResults(data);
+	      }
+	    });
+	  },
+	  renderResults: function renderResults(data) {
+	    // pass data to the template
+	    var html = '';
+	    var myPhotos = data.photos.photo;
+	    myPhotos.forEach(function (item) {
+	      html += compiledTemplate(item);
+	    });
+	
+	    // append result to the .search-result div
+	    (0, _jquery2['default'])('.search-results').html(html);
+	  }
+	};
+	
+	module.exports = app;
+
+/***/ },
+/* 171 */
+/***/ function(module, exports, __webpack_require__) {
+
 	// USAGE:
 	// var handlebars = require('handlebars');
 	/* eslint-disable no-var */
 	
 	// var local = handlebars.create();
 	
-	var handlebars = __webpack_require__(168)['default'];
+	var handlebars = __webpack_require__(172)['default'];
 	
-	var printer = __webpack_require__(196);
+	var printer = __webpack_require__(200);
 	handlebars.PrintVisitor = printer.PrintVisitor;
 	handlebars.print = printer.print;
 	
@@ -33170,7 +33439,7 @@
 
 
 /***/ },
-/* 168 */
+/* 172 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -33180,29 +33449,29 @@
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 	
-	var _handlebarsRuntime = __webpack_require__(169);
+	var _handlebarsRuntime = __webpack_require__(173);
 	
 	var _handlebarsRuntime2 = _interopRequireDefault(_handlebarsRuntime);
 	
 	// Compiler imports
 	
-	var _handlebarsCompilerAst = __webpack_require__(187);
+	var _handlebarsCompilerAst = __webpack_require__(191);
 	
 	var _handlebarsCompilerAst2 = _interopRequireDefault(_handlebarsCompilerAst);
 	
-	var _handlebarsCompilerBase = __webpack_require__(188);
+	var _handlebarsCompilerBase = __webpack_require__(192);
 	
-	var _handlebarsCompilerCompiler = __webpack_require__(193);
+	var _handlebarsCompilerCompiler = __webpack_require__(197);
 	
-	var _handlebarsCompilerJavascriptCompiler = __webpack_require__(194);
+	var _handlebarsCompilerJavascriptCompiler = __webpack_require__(198);
 	
 	var _handlebarsCompilerJavascriptCompiler2 = _interopRequireDefault(_handlebarsCompilerJavascriptCompiler);
 	
-	var _handlebarsCompilerVisitor = __webpack_require__(191);
+	var _handlebarsCompilerVisitor = __webpack_require__(195);
 	
 	var _handlebarsCompilerVisitor2 = _interopRequireDefault(_handlebarsCompilerVisitor);
 	
-	var _handlebarsNoConflict = __webpack_require__(186);
+	var _handlebarsNoConflict = __webpack_require__(190);
 	
 	var _handlebarsNoConflict2 = _interopRequireDefault(_handlebarsNoConflict);
 	
@@ -33241,7 +33510,7 @@
 
 
 /***/ },
-/* 169 */
+/* 173 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -33255,30 +33524,30 @@
 	
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
 	
-	var _handlebarsBase = __webpack_require__(170);
+	var _handlebarsBase = __webpack_require__(174);
 	
 	var base = _interopRequireWildcard(_handlebarsBase);
 	
 	// Each of these augment the Handlebars object. No need to setup here.
 	// (This is done to easily share code between commonjs and browse envs)
 	
-	var _handlebarsSafeString = __webpack_require__(184);
+	var _handlebarsSafeString = __webpack_require__(188);
 	
 	var _handlebarsSafeString2 = _interopRequireDefault(_handlebarsSafeString);
 	
-	var _handlebarsException = __webpack_require__(172);
+	var _handlebarsException = __webpack_require__(176);
 	
 	var _handlebarsException2 = _interopRequireDefault(_handlebarsException);
 	
-	var _handlebarsUtils = __webpack_require__(171);
+	var _handlebarsUtils = __webpack_require__(175);
 	
 	var Utils = _interopRequireWildcard(_handlebarsUtils);
 	
-	var _handlebarsRuntime = __webpack_require__(185);
+	var _handlebarsRuntime = __webpack_require__(189);
 	
 	var runtime = _interopRequireWildcard(_handlebarsRuntime);
 	
-	var _handlebarsNoConflict = __webpack_require__(186);
+	var _handlebarsNoConflict = __webpack_require__(190);
 	
 	var _handlebarsNoConflict2 = _interopRequireDefault(_handlebarsNoConflict);
 	
@@ -33313,7 +33582,7 @@
 
 
 /***/ },
-/* 170 */
+/* 174 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -33324,17 +33593,17 @@
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 	
-	var _utils = __webpack_require__(171);
+	var _utils = __webpack_require__(175);
 	
-	var _exception = __webpack_require__(172);
+	var _exception = __webpack_require__(176);
 	
 	var _exception2 = _interopRequireDefault(_exception);
 	
-	var _helpers = __webpack_require__(173);
+	var _helpers = __webpack_require__(177);
 	
-	var _decorators = __webpack_require__(181);
+	var _decorators = __webpack_require__(185);
 	
-	var _logger = __webpack_require__(183);
+	var _logger = __webpack_require__(187);
 	
 	var _logger2 = _interopRequireDefault(_logger);
 	
@@ -33423,7 +33692,7 @@
 
 
 /***/ },
-/* 171 */
+/* 175 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -33553,7 +33822,7 @@
 
 
 /***/ },
-/* 172 */
+/* 176 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -33599,7 +33868,7 @@
 
 
 /***/ },
-/* 173 */
+/* 177 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -33610,31 +33879,31 @@
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 	
-	var _helpersBlockHelperMissing = __webpack_require__(174);
+	var _helpersBlockHelperMissing = __webpack_require__(178);
 	
 	var _helpersBlockHelperMissing2 = _interopRequireDefault(_helpersBlockHelperMissing);
 	
-	var _helpersEach = __webpack_require__(175);
+	var _helpersEach = __webpack_require__(179);
 	
 	var _helpersEach2 = _interopRequireDefault(_helpersEach);
 	
-	var _helpersHelperMissing = __webpack_require__(176);
+	var _helpersHelperMissing = __webpack_require__(180);
 	
 	var _helpersHelperMissing2 = _interopRequireDefault(_helpersHelperMissing);
 	
-	var _helpersIf = __webpack_require__(177);
+	var _helpersIf = __webpack_require__(181);
 	
 	var _helpersIf2 = _interopRequireDefault(_helpersIf);
 	
-	var _helpersLog = __webpack_require__(178);
+	var _helpersLog = __webpack_require__(182);
 	
 	var _helpersLog2 = _interopRequireDefault(_helpersLog);
 	
-	var _helpersLookup = __webpack_require__(179);
+	var _helpersLookup = __webpack_require__(183);
 	
 	var _helpersLookup2 = _interopRequireDefault(_helpersLookup);
 	
-	var _helpersWith = __webpack_require__(180);
+	var _helpersWith = __webpack_require__(184);
 	
 	var _helpersWith2 = _interopRequireDefault(_helpersWith);
 	
@@ -33651,14 +33920,14 @@
 
 
 /***/ },
-/* 174 */
+/* 178 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
 	exports.__esModule = true;
 	
-	var _utils = __webpack_require__(171);
+	var _utils = __webpack_require__(175);
 	
 	exports['default'] = function (instance) {
 	  instance.registerHelper('blockHelperMissing', function (context, options) {
@@ -33696,7 +33965,7 @@
 
 
 /***/ },
-/* 175 */
+/* 179 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -33706,9 +33975,9 @@
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 	
-	var _utils = __webpack_require__(171);
+	var _utils = __webpack_require__(175);
 	
-	var _exception = __webpack_require__(172);
+	var _exception = __webpack_require__(176);
 	
 	var _exception2 = _interopRequireDefault(_exception);
 	
@@ -33796,7 +34065,7 @@
 
 
 /***/ },
-/* 176 */
+/* 180 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -33806,7 +34075,7 @@
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 	
-	var _exception = __webpack_require__(172);
+	var _exception = __webpack_require__(176);
 	
 	var _exception2 = _interopRequireDefault(_exception);
 	
@@ -33827,14 +34096,14 @@
 
 
 /***/ },
-/* 177 */
+/* 181 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
 	exports.__esModule = true;
 	
-	var _utils = __webpack_require__(171);
+	var _utils = __webpack_require__(175);
 	
 	exports['default'] = function (instance) {
 	  instance.registerHelper('if', function (conditional, options) {
@@ -33862,7 +34131,7 @@
 
 
 /***/ },
-/* 178 */
+/* 182 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -33894,7 +34163,7 @@
 
 
 /***/ },
-/* 179 */
+/* 183 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -33912,14 +34181,14 @@
 
 
 /***/ },
-/* 180 */
+/* 184 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
 	exports.__esModule = true;
 	
-	var _utils = __webpack_require__(171);
+	var _utils = __webpack_require__(175);
 	
 	exports['default'] = function (instance) {
 	  instance.registerHelper('with', function (context, options) {
@@ -33951,7 +34220,7 @@
 
 
 /***/ },
-/* 181 */
+/* 185 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -33962,7 +34231,7 @@
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 	
-	var _decoratorsInline = __webpack_require__(182);
+	var _decoratorsInline = __webpack_require__(186);
 	
 	var _decoratorsInline2 = _interopRequireDefault(_decoratorsInline);
 	
@@ -33973,14 +34242,14 @@
 
 
 /***/ },
-/* 182 */
+/* 186 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
 	exports.__esModule = true;
 	
-	var _utils = __webpack_require__(171);
+	var _utils = __webpack_require__(175);
 	
 	exports['default'] = function (instance) {
 	  instance.registerDecorator('inline', function (fn, props, container, options) {
@@ -34008,14 +34277,14 @@
 
 
 /***/ },
-/* 183 */
+/* 187 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
 	exports.__esModule = true;
 	
-	var _utils = __webpack_require__(171);
+	var _utils = __webpack_require__(175);
 	
 	var logger = {
 	  methodMap: ['debug', 'info', 'warn', 'error'],
@@ -34061,7 +34330,7 @@
 
 
 /***/ },
-/* 184 */
+/* 188 */
 /***/ function(module, exports) {
 
 	// Build out our basic SafeString type
@@ -34082,7 +34351,7 @@
 
 
 /***/ },
-/* 185 */
+/* 189 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -34102,15 +34371,15 @@
 	
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
 	
-	var _utils = __webpack_require__(171);
+	var _utils = __webpack_require__(175);
 	
 	var Utils = _interopRequireWildcard(_utils);
 	
-	var _exception = __webpack_require__(172);
+	var _exception = __webpack_require__(176);
 	
 	var _exception2 = _interopRequireDefault(_exception);
 	
-	var _base = __webpack_require__(170);
+	var _base = __webpack_require__(174);
 	
 	function checkRevision(compilerInfo) {
 	  var compilerRevision = compilerInfo && compilerInfo[0] || 1,
@@ -34380,7 +34649,7 @@
 
 
 /***/ },
-/* 186 */
+/* 190 */
 /***/ function(module, exports) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/* global window */
@@ -34407,7 +34676,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 187 */
+/* 191 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -34444,7 +34713,7 @@
 
 
 /***/ },
-/* 188 */
+/* 192 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -34459,19 +34728,19 @@
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 	
-	var _parser = __webpack_require__(189);
+	var _parser = __webpack_require__(193);
 	
 	var _parser2 = _interopRequireDefault(_parser);
 	
-	var _whitespaceControl = __webpack_require__(190);
+	var _whitespaceControl = __webpack_require__(194);
 	
 	var _whitespaceControl2 = _interopRequireDefault(_whitespaceControl);
 	
-	var _helpers = __webpack_require__(192);
+	var _helpers = __webpack_require__(196);
 	
 	var Helpers = _interopRequireWildcard(_helpers);
 	
-	var _utils = __webpack_require__(171);
+	var _utils = __webpack_require__(175);
 	
 	exports.parser = _parser2['default'];
 	
@@ -34498,7 +34767,7 @@
 
 
 /***/ },
-/* 189 */
+/* 193 */
 /***/ function(module, exports) {
 
 	/* istanbul ignore next */
@@ -35242,7 +35511,7 @@
 
 
 /***/ },
-/* 190 */
+/* 194 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -35252,7 +35521,7 @@
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 	
-	var _visitor = __webpack_require__(191);
+	var _visitor = __webpack_require__(195);
 	
 	var _visitor2 = _interopRequireDefault(_visitor);
 	
@@ -35469,7 +35738,7 @@
 
 
 /***/ },
-/* 191 */
+/* 195 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -35479,7 +35748,7 @@
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 	
-	var _exception = __webpack_require__(172);
+	var _exception = __webpack_require__(176);
 	
 	var _exception2 = _interopRequireDefault(_exception);
 	
@@ -35615,7 +35884,7 @@
 
 
 /***/ },
-/* 192 */
+/* 196 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -35635,7 +35904,7 @@
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 	
-	var _exception = __webpack_require__(172);
+	var _exception = __webpack_require__(176);
 	
 	var _exception2 = _interopRequireDefault(_exception);
 	
@@ -35851,7 +36120,7 @@
 
 
 /***/ },
-/* 193 */
+/* 197 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* eslint-disable new-cap */
@@ -35866,13 +36135,13 @@
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 	
-	var _exception = __webpack_require__(172);
+	var _exception = __webpack_require__(176);
 	
 	var _exception2 = _interopRequireDefault(_exception);
 	
-	var _utils = __webpack_require__(171);
+	var _utils = __webpack_require__(175);
 	
-	var _ast = __webpack_require__(187);
+	var _ast = __webpack_require__(191);
 	
 	var _ast2 = _interopRequireDefault(_ast);
 	
@@ -36429,7 +36698,7 @@
 
 
 /***/ },
-/* 194 */
+/* 198 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -36439,15 +36708,15 @@
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 	
-	var _base = __webpack_require__(170);
+	var _base = __webpack_require__(174);
 	
-	var _exception = __webpack_require__(172);
+	var _exception = __webpack_require__(176);
 	
 	var _exception2 = _interopRequireDefault(_exception);
 	
-	var _utils = __webpack_require__(171);
+	var _utils = __webpack_require__(175);
 	
-	var _codeGen = __webpack_require__(195);
+	var _codeGen = __webpack_require__(199);
 	
 	var _codeGen2 = _interopRequireDefault(_codeGen);
 	
@@ -37561,7 +37830,7 @@
 
 
 /***/ },
-/* 195 */
+/* 199 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* global define */
@@ -37569,7 +37838,7 @@
 	
 	exports.__esModule = true;
 	
-	var _utils = __webpack_require__(171);
+	var _utils = __webpack_require__(175);
 	
 	var SourceNode = undefined;
 	
@@ -37733,7 +38002,7 @@
 
 
 /***/ },
-/* 196 */
+/* 200 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* eslint-disable new-cap */
@@ -37746,7 +38015,7 @@
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 	
-	var _visitor = __webpack_require__(191);
+	var _visitor = __webpack_require__(195);
 	
 	var _visitor2 = _interopRequireDefault(_visitor);
 	
@@ -37925,7 +38194,63 @@
 
 
 /***/ },
-/* 197 */
+/* 201 */
+/***/ function(module, exports) {
+
+	module.exports = "<div class=\"photo\">\n  <img src=\"http://farm{{farm}}.static.flickr.com/{{server}}/{{id}}_{{secret}}_b.jpg\">\n</div>";
+
+/***/ },
+/* 202 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+	
+	var _jquery = __webpack_require__(1);
+	
+	var _jquery2 = _interopRequireDefault(_jquery);
+	
+	var _underscore = __webpack_require__(166);
+	
+	var _underscore2 = _interopRequireDefault(_underscore);
+	
+	var _templatesFunnySquareHtml = __webpack_require__(203);
+	
+	var _templatesFunnySquareHtml2 = _interopRequireDefault(_templatesFunnySquareHtml);
+	
+	var _handlebars = __webpack_require__(171);
+	
+	var _handlebars2 = _interopRequireDefault(_handlebars);
+	
+	var template;
+	var app = {
+	  init: function init() {
+	    template = _handlebars2['default'].compile(_templatesFunnySquareHtml2['default']);
+	    console.log(_templatesFunnySquareHtml2['default']);
+	    app.render();
+	  },
+	  render: function render() {
+	    // display 6 squares
+	    var numberOfSquares = 6;
+	    var renderedHtml = ''; //  1st time empty string
+	    _underscore2['default'].times(numberOfSquares, function (index) {
+	      renderedHtml += template({ id: index }); // same as renderedHtml = renderedHtml + template
+	    });
+	    (0, _jquery2['default'])('h1').after(renderedHtml);
+	  }
+	};
+	
+	module.exports = app;
+
+/***/ },
+/* 203 */
+/***/ function(module, exports) {
+
+	module.exports = "<div class=\"square-container\">\n  <div class=\"square square{{id}}\">\n    <div class=\"inner\">{{id}}</div>\n  </div>\n</div>";
+
+/***/ },
+/* 204 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -37940,96 +38265,107 @@
 	
 	var _backbone2 = _interopRequireDefault(_backbone);
 	
-	var _lscache = __webpack_require__(198);
+	var _handlebars = __webpack_require__(171);
+	
+	var _handlebars2 = _interopRequireDefault(_handlebars);
+	
+	var _lscache = __webpack_require__(205);
 	
 	var _lscache2 = _interopRequireDefault(_lscache);
 	
-	// ***** Model *****
+	var _templatesAccountListHtml = __webpack_require__(206);
+	
+	var _templatesAccountListHtml2 = _interopRequireDefault(_templatesAccountListHtml);
+	
+	var _templatesCreateAccountHtml = __webpack_require__(207);
+	
+	var _templatesCreateAccountHtml2 = _interopRequireDefault(_templatesCreateAccountHtml);
+	
+	// Model
 	var $ = __webpack_require__(1);
 	
-	var TodoModel = _backbone2['default'].Model.extend({
+	// legacy loading for Bootstrap
+	
+	window.jQuery = window.$ = $;
+	__webpack_require__(208);
+	
+	var accountModelConfigObject = {
 	  defaults: {
-	    todos: []
-	  },
-	  todoSchema: {
-	    id: 0,
-	    title: '',
-	    completed: false
-	  },
-	  fetch: function fetch() {
-	    var that = this;
-	    $.ajax({
-	      url: '/api',
-	      method: 'GET',
-	      complete: function complete(response) {
-	        var dataString = response.responseText;
-	        var data = JSON.parse(dataString);
-	        data = that.applySchema(data);
-	        that.set('todos', data);
-	      }
-	    });
+	    accounts: []
 	  },
 	  save: function save() {
-	    var that = this;
-	    var todos = this.get('todos');
-	    $.ajax({
-	      url: '/api',
-	      method: 'POST',
-	      data: { todos: JSON.stringify(todos) },
-	      complete: function complete(response) {
-	        var dataString = response.responseText;
-	        var data = JSON.parse(dataString);
-	        data = that.applySchema(data);
-	        that.set('todos', data);
-	      }
-	    });
+	    var data = this.get('accounts');
+	    _lscache2['default'].set('accounts', data);
 	  },
-	  applySchema: function applySchema(todos) {
-	    var data = todos;
-	    var schema = this.todoSchema;
-	    data = _underscore2['default'].isArray(todos) ? data : [];
-	    data = data.map(function (todo, index) {
-	      todo.id = index;
-	      return _underscore2['default'].defaults(todo, schema);
-	    });
-	    return data;
-	  },
-	  addItem: function addItem(newTitle) {
-	    var newTodo = { title: newTitle };
-	    var todos = this.get('todos');
-	    todos.push(newTodo);
-	    this.set('todos', todos);
-	    this.save();
-	  },
-	  removeItem: function removeItem(id) {
-	    // finally remove the damn thing
-	    var todos = this.get('todos');
-	    todos.splice(id, 1);
-	    this.save();
-	  },
-	  itemCompleted: function itemCompleted(id, isCompleted) {
-	    var todos = this.get('todos');
-	    var item = _underscore2['default'].findWhere(todos, { id: id });
-	    item.completed = isCompleted;
-	    this.set('todos', todos);
-	    this.save();
-	  },
-	  editTitle: function editTitle(newTitle, id) {
-	    var todos = this.get('todos');
-	    var item = _underscore2['default'].findWhere(todos, { id: id });
-	    item.title = newTitle;
-	    this.set('todos', todos);
-	    this.save();
+	  fetch: function fetch() {
+	    var data = _lscache2['default'].get('accounts');
+	    data = data || [];
+	    this.set('accounts', data);
 	  }
-	});
+	};
+	var AccountModel = _backbone2['default'].Model.extend(accountModelConfigObject);
+	var accountModel = new AccountModel();
 	
-	// todoModel = blueprint   TodoModel = house
-	var todoModel = new TodoModel(); // capitalize after "new"
+	// Controller
+	var controllerConfigObject = {
+	  el: '.page-container',
+	  model: accountModel,
+	  events: {
+	    'click .btn-create': 'createNewAccount'
+	  },
+	  initialize: function initialize() {
+	    this.model.fetch();
+	  },
+	  render: function render() {
+	    var listView = new ListView();
+	    this.$el.find('.view-container').html(listView.$el.html);
+	  },
+	  createNewAccount: function createNewAccount() {
+	    var createView = new CreateView();
+	    this.$el.find('.view-container').html(createView.$el.html);
+	  }
+	};
+	var AccountControllerView = _backbone2['default'].View.extend(controllerConfigObject);
 	
-	module.exports = todoModel;
+	// View
+	var listViewConfig = {
+	  tagname: 'div',
+	  events: {},
+	  template: _handlebars2['default'].compile(_templatesAccountListHtml2['default']),
+	  initialize: function initialize() {
+	    this.render();
+	  },
+	  render: function render() {
+	    var renderedTemplate = this.template({});
+	    this.$el.html(renderedTemplate);
+	  }
+	};
+	var ListView = _backbone2['default'].View.extend(listViewConfig);
+	
+	var createViewConfig = {
+	  tagname: 'div',
+	  template: _handlebars2['default'].compile(_templatesCreateAccountHtml2['default']),
+	  event: {
+	    'click .btn-done': 'submitForm'
+	  },
+	  initialize: function initialize() {
+	    this.render();
+	  },
+	  render: function render() {
+	    var renderedTemplate = this.template({});
+	    this.$el.html(renderedTemplate);
+	  },
+	  submitForm: function submitForm() {
+	    // accountControllerView.render();
+	  }
+	};
+	var CreateView = _backbone2['default'].View.extend(createViewConfig);
+	
+	var accountControllerView = new AccountControllerView();
+	module.exports = accountControllerView;
 
 /***/ },
-/* 198 */
+/* 205 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -38383,324 +38719,6 @@
 	  return lscache;
 	}));
 
-
-/***/ },
-/* 199 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-	
-	var _react = __webpack_require__(7);
-	
-	var _react2 = _interopRequireDefault(_react);
-	
-	var TodoItem = _react2["default"].createClass({
-	  displayName: "TodoItem",
-	
-	  propTypes: {
-	    data: _react.PropTypes.shape({
-	      id: _react.PropTypes.number,
-	      title: _react.PropTypes.string,
-	      completed: _react.PropTypes.bool
-	    })
-	  },
-	  render: function render() {
-	    var todo = this.props.data;
-	    return _react2["default"].createElement(
-	      "div",
-	      null,
-	      _react2["default"].createElement(
-	        "div",
-	        { className: "col-sm-1" },
-	        _react2["default"].createElement("input", { className: "completed-checkbox", type: "checkbox", checked: todo.completed, onChange: this.handleComplete })
-	      ),
-	      _react2["default"].createElement(
-	        "div",
-	        { className: "col-md-10 title", onClick: this.titleClick },
-	        todo.title
-	      ),
-	      _react2["default"].createElement(
-	        "div",
-	        { className: "col-md-10 title-edit hidden" },
-	        _react2["default"].createElement("input", { type: "text", className: "form-control title-edit-input", value: todo.title, onKeypress: this.editKeypress })
-	      ),
-	      _react2["default"].createElement(
-	        "div",
-	        { className: "col-md-1" },
-	        _react2["default"].createElement(
-	          "button",
-	          { type: "button", className: "close", "aria-label": "Close", onClick: this.handleClose },
-	          _react2["default"].createElement(
-	            "span",
-	            { "aria-hidden": "true" },
-	            "×"
-	          )
-	        )
-	      )
-	    );
-	  },
-	  handleComplete: function handleComplete() {},
-	  handleClose: function handleClose() {},
-	  titleClick: function titleClick() {},
-	  editKeypress: function editKeypress() {}
-	});
-	
-	module.exports = TodoItem;
-
-/***/ },
-/* 200 */
-/***/ function(module, exports) {
-
-	"use strict";
-	
-	var app = {};
-	module.exports = app;
-
-/***/ },
-/* 201 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-	
-	var _jquery = __webpack_require__(1);
-	
-	var _jquery2 = _interopRequireDefault(_jquery);
-	
-	var _handlebars = __webpack_require__(167);
-	
-	var _handlebars2 = _interopRequireDefault(_handlebars);
-	
-	var _templatesFlickrImageHtml = __webpack_require__(202);
-	
-	var _templatesFlickrImageHtml2 = _interopRequireDefault(_templatesFlickrImageHtml);
-	
-	var compiledTemplate = _handlebars2['default'].compile(_templatesFlickrImageHtml2['default']);
-	
-	var app = {
-	  init: function init() {
-	    app.render();
-	  },
-	  render: function render() {
-	    app.$input = (0, _jquery2['default'])('.search-container input');
-	    app.bindEvents();
-	  },
-	  bindEvents: function bindEvents() {
-	    app.$input.on('keypress', app.searchKeyPress);
-	  },
-	  searchKeyPress: function searchKeyPress(event) {
-	    if (event.which === 13) {
-	      app.doSearch();
-	    }
-	  },
-	  doSearch: function doSearch() {
-	    var phrase = app.$input.val();
-	    _jquery2['default'].ajax({
-	      url: 'https://api.flickr.com/services/rest',
-	      method: 'GET',
-	      data: {
-	        text: phrase,
-	        method: 'flickr.photos.search',
-	        api_key: '731717db25329eb6aa65703cb6b71970',
-	        format: 'json',
-	        per_page: 30
-	      },
-	      complete: function complete(response) {
-	        var text = response.responseText;
-	        text = text.slice(14, text.length - 1);
-	        var data = JSON.parse(text);
-	        app.renderResults(data);
-	      }
-	    });
-	  },
-	  renderResults: function renderResults(data) {
-	    // pass data to the template
-	    var html = '';
-	    var myPhotos = data.photos.photo;
-	    myPhotos.forEach(function (item) {
-	      html += compiledTemplate(item);
-	    });
-	
-	    // append result to the .search-result div
-	    (0, _jquery2['default'])('.search-results').html(html);
-	  }
-	};
-	
-	module.exports = app;
-
-/***/ },
-/* 202 */
-/***/ function(module, exports) {
-
-	module.exports = "<div class=\"photo\">\n  <img src=\"http://farm{{farm}}.static.flickr.com/{{server}}/{{id}}_{{secret}}_b.jpg\">\n</div>";
-
-/***/ },
-/* 203 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-	
-	var _jquery = __webpack_require__(1);
-	
-	var _jquery2 = _interopRequireDefault(_jquery);
-	
-	var _underscore = __webpack_require__(166);
-	
-	var _underscore2 = _interopRequireDefault(_underscore);
-	
-	var _templatesFunnySquareHtml = __webpack_require__(204);
-	
-	var _templatesFunnySquareHtml2 = _interopRequireDefault(_templatesFunnySquareHtml);
-	
-	var _handlebars = __webpack_require__(167);
-	
-	var _handlebars2 = _interopRequireDefault(_handlebars);
-	
-	var template;
-	var app = {
-	  init: function init() {
-	    template = _handlebars2['default'].compile(_templatesFunnySquareHtml2['default']);
-	    console.log(_templatesFunnySquareHtml2['default']);
-	    app.render();
-	  },
-	  render: function render() {
-	    // display 6 squares
-	    var numberOfSquares = 6;
-	    var renderedHtml = ''; //  1st time empty string
-	    _underscore2['default'].times(numberOfSquares, function (index) {
-	      renderedHtml += template({ id: index }); // same as renderedHtml = renderedHtml + template
-	    });
-	    (0, _jquery2['default'])('h1').after(renderedHtml);
-	  }
-	};
-	
-	module.exports = app;
-
-/***/ },
-/* 204 */
-/***/ function(module, exports) {
-
-	module.exports = "<div class=\"square-container\">\n  <div class=\"square square{{id}}\">\n    <div class=\"inner\">{{id}}</div>\n  </div>\n</div>";
-
-/***/ },
-/* 205 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-	
-	var _underscore = __webpack_require__(166);
-	
-	var _underscore2 = _interopRequireDefault(_underscore);
-	
-	var _backbone = __webpack_require__(165);
-	
-	var _backbone2 = _interopRequireDefault(_backbone);
-	
-	var _handlebars = __webpack_require__(167);
-	
-	var _handlebars2 = _interopRequireDefault(_handlebars);
-	
-	var _lscache = __webpack_require__(198);
-	
-	var _lscache2 = _interopRequireDefault(_lscache);
-	
-	var _templatesAccountListHtml = __webpack_require__(206);
-	
-	var _templatesAccountListHtml2 = _interopRequireDefault(_templatesAccountListHtml);
-	
-	var _templatesCreateAccountHtml = __webpack_require__(207);
-	
-	var _templatesCreateAccountHtml2 = _interopRequireDefault(_templatesCreateAccountHtml);
-	
-	// Model
-	var $ = __webpack_require__(1);
-	
-	// legacy loading for Bootstrap
-	
-	window.jQuery = window.$ = $;
-	__webpack_require__(208);
-	
-	var accountModelConfigObject = {
-	  defaults: {
-	    accounts: []
-	  },
-	  save: function save() {
-	    var data = this.get('accounts');
-	    _lscache2['default'].set('accounts', data);
-	  },
-	  fetch: function fetch() {
-	    var data = _lscache2['default'].get('accounts');
-	    data = data || [];
-	    this.set('accounts', data);
-	  }
-	};
-	var AccountModel = _backbone2['default'].Model.extend(accountModelConfigObject);
-	var accountModel = new AccountModel();
-	
-	// Controller
-	var controllerConfigObject = {
-	  el: '.page-container',
-	  model: accountModel,
-	  events: {
-	    'click .btn-create': 'createNewAccount'
-	  },
-	  initialize: function initialize() {
-	    this.model.fetch();
-	  },
-	  render: function render() {
-	    var listView = new ListView();
-	    this.$el.find('.view-container').html(listView.$el.html);
-	  },
-	  createNewAccount: function createNewAccount() {
-	    var createView = new CreateView();
-	    this.$el.find('.view-container').html(createView.$el.html);
-	  }
-	};
-	var AccountControllerView = _backbone2['default'].View.extend(controllerConfigObject);
-	
-	// View
-	var listViewConfig = {
-	  tagname: 'div',
-	  events: {},
-	  template: _handlebars2['default'].compile(_templatesAccountListHtml2['default']),
-	  initialize: function initialize() {
-	    this.render();
-	  },
-	  render: function render() {
-	    var renderedTemplate = this.template({});
-	    this.$el.html(renderedTemplate);
-	  }
-	};
-	var ListView = _backbone2['default'].View.extend(listViewConfig);
-	
-	var createViewConfig = {
-	  tagname: 'div',
-	  template: _handlebars2['default'].compile(_templatesCreateAccountHtml2['default']),
-	  event: {
-	    'click .btn-done': 'submitForm'
-	  },
-	  initialize: function initialize() {
-	    this.render();
-	  },
-	  render: function render() {
-	    var renderedTemplate = this.template({});
-	    this.$el.html(renderedTemplate);
-	  },
-	  submitForm: function submitForm() {
-	    // accountControllerView.render();
-	  }
-	};
-	var CreateView = _backbone2['default'].View.extend(createViewConfig);
-	
-	var accountControllerView = new AccountControllerView();
-	module.exports = accountControllerView;
 
 /***/ },
 /* 206 */
