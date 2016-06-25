@@ -5,12 +5,11 @@ var $ = require('jquery');
 window.jQuery = window.$ = $;
 require('bootstrap');
 
-import _ from 'underscore';
 import Backbone from 'backbone';
 import Handlebars from 'handlebars';
 import lscache from 'lscache';
 import listTemplate from 'templates/accountList.html';
-import createTemplate from 'templates/createAccount.html';
+import createAccount from 'templates/createAccount.html';
 
 // Model
 var accountModelConfigObject = {
@@ -69,7 +68,7 @@ var ListView = Backbone.View.extend(listViewConfig);
 
 var createViewConfig = {
   tagname: 'div',
-  template: Handlebars.compile(createTemplate),
+  template: Handlebars.compile(createAccount),
   event: {
     'click .btn-done': 'submitForm'
   },
