@@ -10005,7 +10005,8 @@
 	  el: '.todo-container',
 	  model: _pagesTodoReactTodoModel2['default'],
 	  events: {
-	    'click .btn-add': 'addTodoItem'
+	    'click .btn-add': 'addTodoItem',
+	    'keypress .add-todo-container': 'addTodoEnterKey'
 	  },
 	  initialize: function initialize() {
 	    this.model.fetch();
@@ -10028,6 +10029,14 @@
 	    var newTitle = $input.val();
 	    _pagesTodoReactTodoDispatcher2['default'].addTodo(newTitle); // notifies dispatcher
 	    $input.val('');
+	  },
+	  addTodoEnterKey: function addTodoEnterKey() {
+	    if (event.which === 13) {
+	      var $input = this.$el.find('.input-name');
+	      var newTitle = $input.val();
+	      _pagesTodoReactTodoDispatcher2['default'].addTodo(newTitle); // notifies dispatcher
+	      $input.val('');
+	    };
 	  }
 	});
 	
@@ -33270,7 +33279,7 @@
 	      title = _react2['default'].createElement(
 	        'div',
 	        { className: 'col-md-10' },
-	        _react2['default'].createElement('input', { type: 'text', className: 'form-control', defaultValue: todo.title, onChange: function () {}, onKeyPress: this.editKeypress })
+	        _react2['default'].createElement('input', { type: 'text', className: 'form-control', defaultValue: todo.title, onChange: function () {}, onKeyUp: this.editKeypress })
 	      );
 	    }
 	    return _react2['default'].createElement(
@@ -33343,7 +33352,7 @@
 	    _todoModel2['default'].removeItem(id);
 	  },
 	  editTodoTitle: function editTodoTitle(id, title, event) {
-	    if (event.which === 13 && typeof title === 'string' && title.length > 0) {
+	    if (typeof title === 'string' && title.length > 0) {
 	      _todoModel2['default'].editTitle(id, title);
 	    }
 	  },

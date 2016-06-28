@@ -15,9 +15,7 @@ var dispatcher = {
     todoModel.removeItem(id);
   },
   editTodoTitle: function(id, title, event){
-    if (
-      event.which === 13 
-      && typeof title === 'string'
+    if (typeof title === 'string'
       && title.length > 0
       ) {
       todoModel.editTitle(id, title);

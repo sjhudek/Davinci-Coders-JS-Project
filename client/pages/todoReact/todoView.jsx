@@ -17,7 +17,7 @@ var TodoItem = React.createClass({
     var title = <div className="col-md-10" onClick={this.titleClick}>{todo.title}</div>;
     if (todo.isEditing) {
       title = (<div className="col-md-10">
-          <input type="text" className="form-control" defaultValue={todo.title} onChange={function(){}} onKeyPress={this.editKeypress}></input>
+          <input type="text" className="form-control" defaultValue={todo.title} onChange={function(){}} onKeyup={this.editKeypress}></input>
         </div>);
     }
     return (
