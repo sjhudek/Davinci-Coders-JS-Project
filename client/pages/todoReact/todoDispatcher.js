@@ -1,25 +1,19 @@
-import todoModel from './todoModel';
+
+import todoModel from 'pages/todoReact/todoModel';
 
 var dispatcher = {
+  init: function(){},
   clickComplete: function(id){
     todoModel.itemCompleted(id);
   },
   addTodo: function(title){
-    if (title !== '' 
-      && typeof title === 'string'
-      ) {
-      todoModel.addItem(title);
-    }
+    todoModel.addItem(title);
   },
   removeTodo: function(id){
     todoModel.removeItem(id);
   },
-  editTodoTitle: function(id, title, event){
-    if (typeof title === 'string'
-      && title.length > 0
-      ) {
-      todoModel.editTitle(id, title);
-    }
+  editTodoTitle: function(id, title){
+    todoModel.editTitle(id, title);
   },
   startEditMode: function(id){
     todoModel.startEditing(id);

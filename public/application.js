@@ -10027,16 +10027,11 @@
 	  addTodoItem: function addTodoItem() {
 	    var $input = this.$el.find('.input-name');
 	    var newTitle = $input.val();
-	    _pagesTodoReactTodoDispatcher2['default'].addTodo(newTitle); // notifies dispatcher
+	    if (newTitle === '') {
+	      return;
+	    }
+	    _pagesTodoReactTodoDispatcher2['default'].addTodo(newTitle);
 	    $input.val('');
-	  },
-	  addTodoEnterKey: function addTodoEnterKey() {
-	    if (event.which === 13) {
-	      var $input = this.$el.find('.input-name');
-	      var newTitle = $input.val();
-	      _pagesTodoReactTodoDispatcher2['default'].addTodo(newTitle); // notifies dispatcher
-	      $input.val('');
-	    };
 	  }
 	});
 	
@@ -33272,14 +33267,14 @@
 	    var todo = this.props.data;
 	    var title = _react2['default'].createElement(
 	      'div',
-	      { className: 'col-md-10', onClick: this.titleClick },
+	      { className: 'col-sm-10', onClick: this.titleClick },
 	      todo.title
 	    );
 	    if (todo.isEditing) {
 	      title = _react2['default'].createElement(
 	        'div',
-	        { className: 'col-md-10' },
-	        _react2['default'].createElement('input', { type: 'text', className: 'form-control', defaultValue: todo.title, onChange: function () {}, onKeyUp: this.editKeypress })
+	        { className: 'col-sm-10' },
+	        _react2['default'].createElement('input', { type: 'text', className: 'form-control', defaultValue: todo.title, onChange: function () {}, onKeyPress: this.editKeypress })
 	      );
 	    }
 	    return _react2['default'].createElement(
@@ -33288,15 +33283,15 @@
 	      _react2['default'].createElement(
 	        'div',
 	        { className: 'col-sm-1' },
-	        _react2['default'].createElement('input', { className: 'completed-checkbox', type: 'checkbox', checked: todo.completed, onChange: this.handleComplete })
+	        _react2['default'].createElement('input', { type: 'checkbox', checked: todo.completed, onChange: this.handleComplete })
 	      ),
 	      title,
 	      _react2['default'].createElement(
 	        'div',
-	        { className: 'col-md-1' },
+	        { className: 'col-sm-1' },
 	        _react2['default'].createElement(
 	          'button',
-	          { type: 'button', className: 'close', 'aria-label': 'Close', onClick: this.handleClose },
+	          { type: 'button', 'aria-label': 'Close', onClick: this.handleClose },
 	          _react2['default'].createElement(
 	            'span',
 	            { 'aria-hidden': 'true' },
@@ -33319,9 +33314,11 @@
 	    _pagesTodoReactTodoDispatcher2['default'].startEditMode(id);
 	  },
 	  editKeypress: function editKeypress(event) {
-	    var id = this.props.data.id;
-	    var newTitle = (0, _jquery2['default'])('li').eq(id).find('input[type="text"]').val();
-	    _pagesTodoReactTodoDispatcher2['default'].editTodoTitle(id, newTitle, event);
+	    if (event.which === 13) {
+	      var id = this.props.data.id;
+	      var newTitle = (0, _jquery2['default'])('li').eq(id).find('input[type="text"]').val();
+	      _pagesTodoReactTodoDispatcher2['default'].editTodoTitle(id, newTitle);
+	    }
 	  }
 	});
 	
@@ -33335,29 +33332,26 @@
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 	
-	var _todoModel = __webpack_require__(167);
+	var _pagesTodoReactTodoModel = __webpack_require__(167);
 	
-	var _todoModel2 = _interopRequireDefault(_todoModel);
+	var _pagesTodoReactTodoModel2 = _interopRequireDefault(_pagesTodoReactTodoModel);
 	
 	var dispatcher = {
+	  init: function init() {},
 	  clickComplete: function clickComplete(id) {
-	    _todoModel2['default'].itemCompleted(id);
+	    _pagesTodoReactTodoModel2['default'].itemCompleted(id);
 	  },
 	  addTodo: function addTodo(title) {
-	    if (title !== '' && typeof title === 'string') {
-	      _todoModel2['default'].addItem(title);
-	    }
+	    _pagesTodoReactTodoModel2['default'].addItem(title);
 	  },
 	  removeTodo: function removeTodo(id) {
-	    _todoModel2['default'].removeItem(id);
+	    _pagesTodoReactTodoModel2['default'].removeItem(id);
 	  },
-	  editTodoTitle: function editTodoTitle(id, title, event) {
-	    if (typeof title === 'string' && title.length > 0) {
-	      _todoModel2['default'].editTitle(id, title);
-	    }
+	  editTodoTitle: function editTodoTitle(id, title) {
+	    _pagesTodoReactTodoModel2['default'].editTitle(id, title);
 	  },
 	  startEditMode: function startEditMode(id) {
-	    _todoModel2['default'].startEditing(id);
+	    _pagesTodoReactTodoModel2['default'].startEditing(id);
 	  }
 	};
 	
