@@ -55,10 +55,17 @@ var commonConfiguration = {
         loader: ExtractTextPlugin.extract('style', 'css?module&localIdentName=[local]' +
           '&sourceMap!sass?sourceMap&outputStyle=expanded' +
           '&includePaths[]=' + (path.resolve(__dirname, '../node_modules'))),
+<<<<<<< HEAD
       }
       // { test: /\.png$/, loader: "url-loader" },
       // { test: /\.jpg$/, loader: "file-loader" },
       // { test: /\.html$/, loader: "html-loader" },
+=======
+      },
+      // { test: /\.png$/, loader: "url-loader" },
+      // { test: /\.jpg$/, loader: "file-loader" },
+      { test: /\.html$/, loader: "html-loader" }
+>>>>>>> a53a3615da7ab047a805b9d1763687263ffb55a1
     ]
   },
   resolve: {

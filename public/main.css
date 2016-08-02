@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 * {
   box-sizing: border-box;
 }
@@ -33,6 +34,103 @@ img {
 
 .gridItem {
   position: absolute;
+=======
+.todo-container {
+  width: 500px;
+  margin: 5px auto;
+  margin-top: 20px;
+}
+
+.add-todo-container {
+  margin-bottom: 10px;
+}
+
+.add-todo-container .col-md-10 {
+  padding-left: 0;
+}
+
+.add-todo-container .col-md-2 {
+  padding-right: 0;
+  text-align: right;
+}
+
+.todo-container h1 {
+  font-family: 'Over the Rainbow', cursive;
+  font-size: 25px;
+}
+
+h1 {
+  color: red;
+}
+
+.square {
+  display: inline-block;
+  height: 100px;
+  width: 100px;
+  background-color: #63a1f2;
+  text-align: center;
+  line-height: 100px;
+  font-family: arial;
+  font-size: 42px;
+  transform: none;
+  transition: transform .5s;
+}
+
+.square-container {
+  perspective: 50px;
+  display: inline-block;
+}
+
+.square1:hover {
+  transform: skewX(45deg);
+  transition: transform .5s;
+}
+
+.square2:hover {
+  transform: rotate(45deg);
+  transition: transform .5s;
+}
+
+.square3:hover {
+  transform: scale(0.8, 0.5);
+  transition: transform .5s;
+}
+
+.square4:hover {
+  transform: rotateY(745deg) rotateX(75deg);
+  transition: transform .5s;
+}
+
+.square5:hover {
+  -webkit-transform: rotateX(45deg);
+  transform: rotateX(45deg);
+  transition: transform .5s;
+}
+
+.square6:hover {
+  transform: translate3d(20px, 50px, 100px);
+}
+
+.page-container {
+  width: 700px;
+  margin: auto;
+}
+
+.search-container .photo {
+  width: 100px;
+  height: 100px;
+  overflow: hidden;
+  display: inline-block;
+}
+
+.search-container .photo img {
+  width: 100%;
+}
+
+video {
+  height: 240px;
+  width: 320px;
+>>>>>>> a53a3615da7ab047a805b9d1763687263ffb55a1
 }
 
 /*# sourceMappingURL=main.css.map*/
